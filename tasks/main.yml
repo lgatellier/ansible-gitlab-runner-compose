@@ -1,0 +1,64 @@
+---
+- name: Ensure docker-compose command exists on the host
+  ansible.builtin.command: command -v {{ gitlab_runner_docker_compose_path }}
+  register: docker_compose_exists
+  changed_when: false
+  failed_when: docker_compose_exists.rc != 0 and docker_compose_exists.rc != 127
+
+- name: Ensure GitLab Runner config directory exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    group: docker
+    mode: 0755
+  loop:
+    - "{{ gitlab_runner_config_directory }}"
+    - "{{ gitlab_runner_config_directory }}/conf"
+    - "{{ gitlab_runner_config_directory }}/conf.d"
+
+- name: Template generic configuration files
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ gitlab_runner_config_directory }}/{{ item.dest }}"
+    owner: "{{ ansible_user_id }}"
+    group: docker
+    mode: 0644
+  loop:
+    - { src: docker-compose.yml.j2, dest: docker-compose.yml }
+    - { src: 0-runner-header.toml.j2, dest: conf.d/0-runner-header.toml }
+
+- name: Install python-gitlab package
+  ansible.builtin.pip:
+    name: python-gitlab
+    state: present
+    extra_args: --user
+
+- include_tasks: single-runner.yml
+  loop: "{{ gitlab_runner_runners }}"
+
+- name: Assemble config.toml file
+  ansible.builtin.assemble:
+    src: "{{ gitlab_runner_config_directory }}/conf.d"
+    dest: "{{ gitlab_runner_config_directory }}/conf/config.toml"
+    delimiter: "##########################################"
+    owner: "{{ ansible_user_id }}"
+    group: docker
+    mode: 0644
+
+- name: Setup systemd unit
+  become: true
+  ansible.builtin.template:
+    src: gitlab-runner.service.j2
+    dest: /usr/lib/systemd/system/gitlab-runner.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Enable and start systemd unit
+  become: true
+  ansible.builtin.systemd:
+    name: gitlab-runner.service
+    enabled: true
+    state: started
+

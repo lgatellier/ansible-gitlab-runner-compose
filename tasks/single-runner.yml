@@ -1,0 +1,55 @@
+---
+- name: Determine configuration for the runner
+  ansible.builtin.set_fact:
+    runner_target: "{{ item.group | default(item.project) }}"
+    runner_target_type: "{{ item.group is defined | ternary('group', 'project') }}"
+- name: Test
+  ansible.builtin.set_fact:
+    runner_filename: "{{ runner_target_type }}-{{ runner_target.split('/') | join('__') }}.toml"
+- name: Test2
+  ansible.builtin.set_fact:
+    runner_config_full_path: "{{ gitlab_runner_config_directory }}/conf.d/{{ runner_filename }}"
+
+- name: Ensure the runner is registered and retrieve its token
+  block:
+    - name: Ensure the runner is registered
+      community.general.gitlab_runner:
+        access_level: not_protected
+        active: true
+        locked: false
+        run_untagged: true
+        state: present
+        api_url: "{{ item.gitlab_url }}"
+        api_token: "{{ gitlab_runner_api_token }}"
+        description: "{{ inventory_hostname }}"
+        group: "{{ item.group is defined | ternary(runner_target, omit) }}"
+        project: "{{ item.project is defined | ternary(runner_target, omit) }}"
+        tag_list: "{{ item.tags | default([]) + [inventory_hostname] }}"
+        registration_token: "{{ item.registration_token }}"
+        validate_certs: false
+      register: runner_register
+    - name: Define runner token variable
+      when: runner_register.changed and runner_register.runner.token is defined
+      ansible.builtin.set_fact:
+        runner_token: "{{ runner_register.runner.token }}"
+
+- name: Retrieve runner token from toml fragment
+  when: not runner_register.changed or runner_register.runner.token is not defined
+  block:
+    - name: Grep token from runner toml fragment
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep token {{ runner_config_full_path }} | cut -d'"' -f2
+      changed_when: false
+      register: runner_token_extraction
+    - name: Define runner token variable
+      ansible.builtin.set_fact:
+        runner_token: "{{ runner_token_extraction.stdout }}"
+
+- name: Generate runner configuration file
+  ansible.builtin.template:
+    src: runner.toml.j2
+    dest: "{{ runner_config_full_path }}"
+    owner: "{{ ansible_user_id }}"
+    group: docker
+    mode: 0644

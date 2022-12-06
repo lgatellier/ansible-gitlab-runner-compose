@@ -1,0 +1,17 @@
+version: '3.3'
+services:
+  runner:
+    image: gitlab/gitlab-runner:{{ gitlab_runner_version }}
+    container_name: {{ gitlab_runner_container_name }}
+    restart: always
+    volumes:
+      - ./conf:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - default
+{% if gitlab_runner_enable_metrics_port %}
+    ports:
+      - {{ gitlab_runner_metrics_port }}:8093
+{% endif %}
+networks:
+  default:

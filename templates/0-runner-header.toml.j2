@@ -1,0 +1,9 @@
+{% if gitlab_runner_enable_metrics_port %}
+listen_address = "[::]:8093"
+{% endif %}
+concurrent = {{ gitlab_runner_concurrent_jobs }}
+check_interval = {{ gitlab_runner_check_interval }}
+
+[session_server]
+  session_timeout = {{ gitlab_runner_session_timeout }}
+

@@ -1,0 +1,14 @@
+# GitLab Runner Docker Compose service
+
+[Unit]
+Description=GitLab Runner engine via Docker Compose
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+WorkingDirectory={{ gitlab_runner_config_directory }}
+ExecStart={{ gitlab_runner_docker_compose_path }} up --remove-orphans
+ExecReload={{ gitlab_runner_docker_compose_path }} up -d
+ExecStop={{ gitlab_runner_docker_compose_path }} down
+TimeoutSec=300
