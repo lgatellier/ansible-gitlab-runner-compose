@@ -11,6 +11,9 @@ gitlab_runner_concurrent_jobs: 5
 gitlab_runner_check_interval: 3
 gitlab_runner_session_timeout: 1800
 gitlab_runner_output_limit: 102400
+gitlab_runner_allowed_pull_policies: 
+  - always
+  - if-not-present
 
 # Define runners list as below
 # gitlab_runner_runners:

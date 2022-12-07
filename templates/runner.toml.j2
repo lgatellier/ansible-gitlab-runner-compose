@@ -21,5 +21,6 @@
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
     disable_cache = false
+    allowed_pull_policies = ["{{ gitlab_runner_allowed_pull_policies | join('", "') }}"]
     volumes = ["/cache"]
 
