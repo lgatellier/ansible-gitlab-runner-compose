@@ -19,8 +19,8 @@
         locked: false
         run_untagged: true
         state: present
-        api_url: "{{ item.gitlab_url }}"
-        api_token: "{{ gitlab_runner_api_token }}"
+        api_url: "{{ item.gitlab_url | default(gitlab_runner_gitlab_url) }}"
+        api_token: "{{ item.gitlab_api_token | default(gitlab_runner_api_token) }}"
         description: "{{ inventory_hostname }}"
         group: "{{ item.group is defined | ternary(runner_target, omit) }}"
         project: "{{ item.project is defined | ternary(runner_target, omit) }}"
