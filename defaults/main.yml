@@ -15,9 +15,13 @@ gitlab_runner_allowed_pull_policies:
   - always
   - if-not-present
 
+gitlab_runner_gitlab_url: https://gitlab.example.com
+gitlab_runner_api_token: mysecrettoken
+
 # Define runners list as below
 # gitlab_runner_runners:
-#   - gitlab_url: https://my.gitlab.url
+#   - gitlab_url: https://my.gitlab.url # Defaults to gitlab_runner_gitlab_url
+#     gitlab_api_token: mysupertoken # Defaults to gitlab_runner_api_token
 #     group: my/group
 #     registration_token: mysecuregrouptoken
 #   - gitlab_url: https://my.gitlab.url
