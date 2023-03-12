@@ -52,4 +52,4 @@
     dest: "{{ runner_config_full_path }}"
     owner: "{{ ansible_user_id }}"
     group: docker
-    mode: 0644
+    mode: '0644'

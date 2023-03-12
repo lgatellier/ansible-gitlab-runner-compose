@@ -11,7 +11,7 @@
     state: directory
     owner: "{{ ansible_user_id }}"
     group: docker
-    mode: 0755
+    mode: '0755'
   loop:
     - "{{ gitlab_runner_config_directory }}"
     - "{{ gitlab_runner_config_directory }}/conf"
@@ -23,7 +23,7 @@
     dest: "{{ gitlab_runner_config_directory }}/{{ item.dest }}"
     owner: "{{ ansible_user_id }}"
     group: docker
-    mode: 0644
+    mode: '0644'
   loop:
     - { src: docker-compose.yml.j2, dest: docker-compose.yml }
     - { src: 0-runner-header.toml.j2, dest: conf.d/0-runner-header.toml }
@@ -34,7 +34,8 @@
     state: present
     extra_args: --user
 
-- include_tasks: single-runner.yml
+- name: Configure runner
+  ansible.builtin.include_tasks: single-runner.yml
   loop: "{{ gitlab_runner_runners }}"
 
 - name: Assemble config.toml file
@@ -44,7 +45,7 @@
     delimiter: "##########################################"
     owner: "{{ ansible_user_id }}"
     group: docker
-    mode: 0644
+    mode: '0644'
 
 - name: Setup systemd unit
   become: true
@@ -53,7 +54,7 @@
     dest: /usr/lib/systemd/system/gitlab-runner.service
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 - name: Enable and start systemd unit
   become: true
