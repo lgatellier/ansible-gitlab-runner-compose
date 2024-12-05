@@ -26,7 +26,7 @@
         project: "{{ item.project is defined | ternary(runner_target, omit) }}"
         tag_list: "{{ item.tags | default([]) + [inventory_hostname] }}"
         registration_token: "{{ item.registration_token | default(omit) }}"
-        validate_certs: false
+        validate_certs: "{{ item.validate_certs | default(True) }}"
       register: runner_register
     - name: Define runner token variable
       when: runner_register.changed and runner_register.runner.token is defined
