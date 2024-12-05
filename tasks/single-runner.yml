@@ -3,10 +3,10 @@
   ansible.builtin.set_fact:
     runner_target: "{{ item.group | default(item.project) }}"
     runner_target_type: "{{ item.group is defined | ternary('group', 'project') }}"
-- name: Test
+- name: Set runner_filename variable
   ansible.builtin.set_fact:
     runner_filename: "{{ runner_target_type }}-{{ runner_target.split('/') | join('__') }}.toml"
-- name: Test2
+- name: Set runner_config_full_path variable
   ansible.builtin.set_fact:
     runner_config_full_path: "{{ gitlab_runner_config_directory }}/conf.d/{{ runner_filename }}"
 
@@ -25,7 +25,7 @@
         group: "{{ item.group is defined | ternary(runner_target, omit) }}"
         project: "{{ item.project is defined | ternary(runner_target, omit) }}"
         tag_list: "{{ item.tags | default([]) + [inventory_hostname] }}"
-        registration_token: "{{ item.registration_token }}"
+        registration_token: "{{ item.registration_token | default(omit) }}"
         validate_certs: false
       register: runner_register
     - name: Define runner token variable
