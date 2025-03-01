@@ -27,5 +27,3 @@ gitlab_runner_api_token: mysecrettoken
 #   - gitlab_url: https://my.gitlab.url
 #     project: mygroup/my-project
 #     registration_token: mysecureprojecttoken
-#   - gitlab_url: https://my.gitlab.url
-#     registration_token: mysecureinstancetoken
