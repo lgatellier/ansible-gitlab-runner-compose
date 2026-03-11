@@ -1,9 +1,13 @@
 ---
-- name: Ensure docker-compose command exists on the host
+- name: Ensure docker command exists on the host
   ansible.builtin.stat:
-    path: "{{ gitlab_runner_docker_compose_path }}"
-  register: docker_compose_exists
-  failed_when: not docker_compose_exists.stat.exists
+    path: "{{ gitlab_runner_docker_path }}"
+  register: docker_exists
+  failed_when: not docker_exists.stat.exists
+
+- name: Ensure docker compose plugin is installed
+  ansible.builtin.command: "{{ gitlab_runner_docker_path }} compose version"
+  changed_when: false
 
 - name: Ensure GitLab Runner config directory exists
   ansible.builtin.file:

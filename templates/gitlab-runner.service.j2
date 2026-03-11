@@ -8,7 +8,7 @@ Requires=docker.service
 [Service]
 Type=simple
 WorkingDirectory={{ gitlab_runner_config_directory }}
-ExecStart={{ gitlab_runner_docker_compose_path }} up --remove-orphans
-ExecReload={{ gitlab_runner_docker_compose_path }} up -d
-ExecStop={{ gitlab_runner_docker_compose_path }} down
+ExecStart={{ gitlab_runner_docker_path }} compose up --remove-orphans
+ExecReload={{ gitlab_runner_docker_path }} compose up -d
+ExecStop={{ gitlab_runner_docker_path }} compose down
 TimeoutSec=300
