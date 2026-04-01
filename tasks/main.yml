@@ -64,5 +64,6 @@
   become: true
   ansible.builtin.systemd:
     name: gitlab-runner.service
+    daemon_reload: true
     enabled: true
     state: started
